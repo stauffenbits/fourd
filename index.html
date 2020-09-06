@@ -66,11 +66,11 @@
   <main>
     <section>
       <p>Welcome to yet another work-in-progress page. 
-        In this rewrite, I am focusing on 
+        In this rewrite, I focus on
         <li>energy efficiency, making sure the animations can be cancelled and resumed at will, controlled by page blur.</li>
         <li>custom element best practices, it should be able to control visual aspects of the visualization using nothing but cascading style sheets.</li>
-        <li>algorithmic complexity</li>
-        <li>api consistency</li>
+        <li>algorithmic complexity, the current implementation uses 0-level multilevel dynamics (ie... single level dynamis) because the two-level-dynamics code is broken. Once ready, it should display on the order of thousands of vertices instead of hundreds. </li>
+        <li>api consistency, my primary audience, even though the goal of this library is to illuminate everyone's world, its primary audience is a developer familiar with html, javascript and css. </li>
       </p>
 
       <p><a href="doc/Building.html">Learn how</a> to fetch, build and contribute back to the code.</p>
@@ -81,6 +81,10 @@
 
 
       <button id="addPyramid">Add a Tetrahedron</button>
+      <br>
+
+      <button onclick="fourd.pause()">Pause</button>
+      <button onclick="fourd.resume()">Resume</button>
       <br>
       
       <jmm-fourd id="fourd"></jmm-fourd>
@@ -96,10 +100,6 @@
   --vertex-color: darkblue;
 }
       </style>
-
-      <p>Currently just a spinning cube, no relation to the graph, yet.</p><br>
-      <button onclick="fourd.pause()">Pause</button>
-      <button onclick="fourd.resume()">Resume</button>
     </section>
     <section>
       <h2>Tests</h2>

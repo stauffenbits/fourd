@@ -25,7 +25,6 @@ var vlSpec = {
     y: {
       field: 'delta', 
       type: 'quantitative', 
-      scale: {domain: [-1.0, 1.0]}, 
       axis: {bandPosition: 0.5}
     },
     color: {field: 'id', type: 'nominal'}
