@@ -19,7 +19,9 @@ var vlSpec = {
   encoding: {
     x: {
       field: 'iteration', 
-      type: 'quantitative'},
+      type: 'quantitative',
+      scale: {zero: false}
+    },
     y: {
       field: 'delta', 
       type: 'quantitative', 
@@ -45,7 +47,7 @@ $('#addPyramid').click(function(){
   fourd.follow(v1);
 
   var ve = embed('#chart', vlSpec).then((res) => {    
-    var minimumX = -10;
+    var minimumX = -100;
     var counter = 0;
 
     var recorder = () => {
@@ -81,6 +83,7 @@ $('#addPyramid').click(function(){
 
     var record = recorder();
     fourd.render_hook = (layout) => {
+      minimumX++;
       var changeSet = res.view.changeset().insert(record(layout)).remove(remover);
       res.view.change('table', changeSet).run();
     };

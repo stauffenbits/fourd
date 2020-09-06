@@ -14,7 +14,7 @@
   "author": "Joshua M Moore <moore.joshua@pm.me>",
   "scripts": {
     "github":         "npm run clean && npm run githubBuild && npm run publish",
-    "githubBuild":    "parcel build index.html --out-dir docs/ --public-url /fourd/ && cp doc docs/ -r",
+    "githubBuild":    "parcel build index.html --out-dir docs/ --public-url /fourd/ && cp doc/* docs/doc/. -r",
     "githubDev":      "parcel index.html --out-dir docs/ --public-url /fourd/",
     "commit":         "git add . && git commit -m \"autocommit: $(date) @ $(hostname)\" --allow-empty",
     "publish":        "npm run commit && git push origin main",
