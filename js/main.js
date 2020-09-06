@@ -17,8 +17,15 @@ var vlSpec = {
   width: 400,
   mark: 'point',
   encoding: {
-    x: {field: 'iteration', type: 'quantitative'},
-    y: {field: 'delta', type: 'quantitative', scale: {domain: [-10.0, 10.0]}, axis: {bandPosition: 0.5}},
+    x: {
+      field: 'iteration', 
+      type: 'quantitative'},
+    y: {
+      field: 'delta', 
+      type: 'quantitative', 
+      scale: {domain: [-1.0, 1.0]}, 
+      axis: {bandPosition: 0.5}
+    },
     color: {field: 'id', type: 'nominal'}
   },
 };
@@ -42,7 +49,6 @@ $('#addPyramid').click(function(){
     var counter = 0;
 
     var recorder = () => {
-      var last = 0.0;
       var delta;
 
       return (layout) => {
@@ -51,6 +57,7 @@ $('#addPyramid').click(function(){
 
         for(var i=0; i<layout.V.length; i++){
           var vertex = fourd.V.get(layout.V[i].id);
+          vertex.previous = vertex.previous === undefined ? 0.0 : vertex.previous;
 
           delta = vertex.previous - math.subset(vertex.position, math.index(0));
           vertex.previous = vertex.position._data[0];
