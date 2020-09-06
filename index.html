@@ -1,0 +1,136 @@
+<!doctype html>
+<html class="no-js" lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Place favicon.ico in the root directory -->
+
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/main.css">
+
+  <meta name="theme-color" content="#fafafa">
+
+  <link rel="stylesheet" href="node_modules/mocha/mocha.css" />
+
+  <style>
+    :root {
+      --nav-height: 75px;
+      --vertex-color: darkblue;
+    }
+
+    html {
+      border: 0;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav {
+      width: 100vw;
+      height: var(--nav-height);
+      border-bottom: 3px dashed darkslateblue;
+    }
+
+    main {
+      margin: 25px;
+      z-index: 5;
+    }
+
+    section {
+      border-top: 1.5px dashed darkslateblue;
+      border-bottom: 1.5px dashed darkslateblue;
+      padding-bottom: 25px;
+      padding-top: 25px;
+    }
+
+  </style>
+
+</head>
+<body>
+  <!-- Add your site or application content here -->
+  
+  <nav>
+    <h1>joshuamoore.dev/fourd/</h1>
+  </nav>
+
+  <main>
+    <section>
+      <p>Welcome to yet another work-in-progress page. 
+        In this rewrite, I am focusing on 
+        <li>energy efficiency, making sure the animations can be cancelled and resumed at will, controlled by page blur.</li>
+        <li>custom element best practices, it should be able to control visual aspects of the visualization using nothing but cascading style sheets.</li>
+        <li>algorithmic complexity</li>
+        <li>api consistency</li>
+      </p>
+
+      <p><a href="doc/Building.html">Learn how</a> to fetch, build and contribute back to the code.</p>
+    </section>
+
+    <section>
+      <h2>Graph Visualization Web Component</h2>
+
+
+      <button id="addPyramid">Add a Tetrahedron</button>
+      <br>
+      
+      <jmm-fourd id="fourd"></jmm-fourd>
+      <div id="chart"></div>
+      <br>
+      <br>Edit me!
+      <style contenteditable id="customStyle">
+#fourd {
+  margin: 25px;
+  width: 50vw;
+  height: 50vh;
+  background-color: lightblue;
+  --vertex-color: darkblue;
+}
+      </style>
+
+      <p>Currently just a spinning cube, no relation to the graph, yet.</p><br>
+      <button onclick="fourd.pause()">Pause</button>
+      <button onclick="fourd.resume()">Resume</button>
+    </section>
+    <section>
+      <h2>Tests</h2>
+      <div id="mocha"></div>
+    </section>
+  </main>
+
+  <script src="js/vendor/modernizr-3.11.2.min.js"></script>
+  <script src="js/plugins.js"></script>
+
+  <script src="node_modules/vega/build/vega.min.js"></script>
+  <script src="node_modules/vega-lite/build/vega-lite.min.js"></script>
+  <script src="node_modules/vega-embed/build/vega-embed.min.js"></script>
+
+  <script src="js/main.js"></script>
+
+  <!--
+  <script src="node_modules/chai/chai.js"></script>
+  <script src="node_modules/mocha/mocha.js"></script>
+
+  <script class="mocha-init">
+    mocha.setup('bdd');
+    mocha.checkLeaks();
+  </script>
+
+  <script src="test/test.graph.js"></script>
+
+  <script class="mocha-exec">
+    mocha.run();
+  </script>
+  -->
+</body>
+
+</html>

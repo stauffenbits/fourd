@@ -1,0 +1,45 @@
+{
+  "name": "@stauffenbits/fourd",
+  "version": "0.0.3",
+  "description": "a web component dynamic multilevel graph visualization",
+  "keywords": [
+    "web",
+    "component",
+    "dynamic",
+    "multilevel",
+    "graph",
+    "visualization"
+  ],
+  "license": "MIT",
+  "author": "Joshua M Moore <moore.joshua@pm.me>",
+  "scripts": {
+    "github":         "npm run clean && npm run githubBuild && npm run publish",
+    "githubBuild":    "parcel build index.html --out-dir docs/ --public-url /fourd/ && cp doc docs/ -r",
+    "githubDev":      "parcel index.html --out-dir docs/ --public-url /fourd/",
+    "commit":         "git add . && git commit -m \"autocommit: $(date) @ $(hostname)\" --allow-empty",
+    "publish":        "npm run commit && git push origin main",
+    "codesmith":      "npm run clean && npm run codesmithBuild && npm run codesmithDev",
+    "codesmithBuild": "parcel build index.html --out-dir docs/ --public-url /test/",
+    "codesmithDev":   "parcel index.html --out-dir docs/ --public-url /test/",
+    "local":          "npm run clean && npm run localBuild && npm run localDev",
+    "localBuild":     "parcel build index.html --out-dir docs/ --public-url /",
+    "localDev":       "parcel index.html --out-dir docs/ --public-url /",
+    "start":          "npm run local",
+    "clean":          "rm -rf docs .cache"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.0.1",
+    "parcel-bundler": "^1.12.4"
+  },
+  "dependencies": {
+    "brain.js": "^2.0.0-beta.2",
+    "jquery": "^3.5.1",
+    "mathjs": "^7.2.0",
+    "regenerator-runtime": "^0.13.7",
+    "three": "^0.120.1",
+    "vega": "^5.15.0",
+    "vega-embed": "^6.11.1",
+    "vega-lite": "^4.15.0"
+  }
+}
