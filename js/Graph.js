@@ -226,8 +226,8 @@ var Graph = class Graph {
     // attraction
     for(var edge of this.E){
       var attraction = edge.attraction(this.settings)
-      edge.source.acceleration = math.add(edge.source.acceleration, attraction);
-      edge.target.acceleration = math.subtract(edge.target.acceleration, attraction);
+      edge.source.acceleration = math.subtract(edge.source.acceleration, attraction);
+      edge.target.acceleration = math.add(edge.target.acceleration, attraction);
     }
    
     for(var v of this.V){

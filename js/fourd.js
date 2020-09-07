@@ -102,7 +102,7 @@ class FourD extends HTMLElement {
 
     this.style = this.shadowRoot.querySelector('style');
 
-    this.render_hook = () => {};
+    this._render_hook = () => {};
   }
 
   set render_hook(fn){
@@ -376,6 +376,10 @@ class FourD extends HTMLElement {
   }
 
   resume(){
+    this.styleObserver.observe(this, {
+      attributes: true,
+      childList: false
+    })
     this.animate();
   }
 

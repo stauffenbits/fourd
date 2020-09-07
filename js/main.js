@@ -44,34 +44,40 @@ var LayoutPlotter = class LayoutPlotter {
 
     this.drawRange = 100;
 
-    this._id = this._genId();
+    this._id = LayoutPlotter._genId();
     this.counter = 0;
   }
 
   static _genId(){
     LayoutPlotter.nextId += 1;
-    return `Plot #${LayoutPlot.nextId}`;
+    return `Plot-${LayoutPlotter.nextId}`;
   }
 
   _genSpec(){
-    return this.spec = {
+    var _id = this._id;
+    var xField = this.xField;
+    var yField = this.yField;
+    var categoryField = this.categoryField;
+
+    this.spec = {
       $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
-      data: {name: this._id},
+      data: {name: _id},
       width: 450,
       mark: 'point',
       encoding: {
         x: {
-          field: this.xField, 
+          field: xField, 
           type: 'quantitative',
           scale: {zero: false},
-          axis: {labels: true}
+          labels: true
         },
         y: {
-          field: this.yField, 
+          field: yField, 
           type: 'quantitative', 
-          axis: {bandPosition: 0.5, labels: true}
+          axis: {bandPosition: 0.5},
+          labels: true
         },
-        color: {field: this.categoryField, type: 'nominal'}
+        color: {field: categoryField, type: 'nominal'}
       },
     };
   }
@@ -100,37 +106,23 @@ var LayoutPlotter = class LayoutPlotter {
       this.rejectView = reject;
     })
 
-    return {
-      over: this.over
-    }
+    return this;
   }
 
   over(xField){
     this.xField = xField;
-
-    return {
-      colorBy: this.colorBy
-    }
+    return this;
   }
 
   colorBy(categoryField){
     this.categoryField = categoryField;
-    this._genSpec()
-    this.ve = embed(this.chartSel, this.spec).then(res => {
-      this.resolveView(res.view);
-    })
-
-    var plotter = {
-      stream: this.stream
-    }
-
-    return plotter;
+    return this;
   }
 
   set drawRange(val){
-    this._drawRange = -val;
-    this.removable = (t) => t.x < this.drawRange;
-    this.counter = 0;
+    this._drawRange = val;
+    this.minX = -val;
+    this.removable = (t) => t[this.xField] < this.minX;
   }
 
   get drawRange(){
@@ -148,16 +140,18 @@ var LayoutPlotter = class LayoutPlotter {
   makeRecorder(collect){
     return (layout) => {
       var table = [];
-      counter++;
+      this.counter++;
 
       for(var i=0; i<layout.V.length; i++){
         var vertex = this.fourd.V.get(layout.V[i].id);
-        vertex.previous = vertex.previous === undefined ? 0.0 : vertex.previous;
+        var previous = vertex.previous === undefined ? 0.0 : vertex.previous;
 
         var record = {};
-        record[this.xField] = counter;
-        record[this.yField] = collect(vertex);
+        record[this.xField] = this.counter;
+        record[this.yField] = previous - collect(vertex);
         record[this.categoryField] = vertex[this.categoryField];
+
+        vertex.previous = previous;
 
         table.push(record);
       }
@@ -166,24 +160,63 @@ var LayoutPlotter = class LayoutPlotter {
     };
   }
 
-  stream(collect){
-    this.minX = this.drawRange;
-    this.counter = 0;    
-    this.record = makeRecorder(collect);
+  makeRemovable(){
+    return t => t[this.xField] < this.minX;
+  }
 
-    this.fourd.render_hook = (layout) => {
-      this.minX++;
-      this.view.then(view => {
+  stream(collect){
+    // 1
+    this.drawRange = 100;
+    this.counter = 0;
+    var record = this.makeRecorder(collect);
+    var removable = this.makeRemovable();
+    
+    this.view.then(view => {
+      // 3
+      this.fourd.render_hook = (layout) => {
+        this.minX++;
         var changeSet = view.changeset()
-          .insert(this.record(layout))
-          .remove(this.removable);
+          .insert(record(layout))
+          .remove(removable);
         view.change(this._id, changeSet).run();
-      })
-    };
+      }
+    })
+
+    // 2
+    this._genSpec()
+    this.ve = embed(this.chartSel, this.spec).then(res => {
+      this.resolveView(res.view);
+    })
+
+    // 4
+    return this;
   }
 }
 LayoutPlotter.nextId = 0;
 
+
+$('#addPyramid').click(function(){
+  // a tetrahedron
+  var v1 = fourd.add_vertex(), 
+    v2 = fourd.add_vertex(), 
+    v3 = fourd.add_vertex(), 
+    v4 = fourd.add_vertex(); 
+  fourd.add_edge(v1, v2); 
+  fourd.add_edge(v2, v3); 
+  fourd.add_edge(v1, v3); 
+  fourd.add_edge(v1, v4); 
+  fourd.add_edge(v2, v4); 
+  fourd.add_edge(v3, v4); 
+  fourd.follow(v1);
+
+  var lp = new LayoutPlotter('#fourd', '#chart');
+  lp.plot('delta').over('iteration').colorBy('id')
+    .stream(vertex => vertex.previous - math.subset(vertex.position, math.index(0)));
+
+  window.lp = lp;
+});
+
+/*
 var deltaSpec = {
   $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
   data: {name: 'table'},
@@ -264,3 +297,5 @@ $('#addPyramid').click(function(){
     };
   })
 })
+
+*/
