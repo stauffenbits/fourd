@@ -25,32 +25,7 @@
 
   <style>
     :root {
-      --nav-height: 75px;
       --vertex-color: darkblue;
-    }
-
-    html {
-      border: 0;
-      margin: 0;
-      padding: 0;
-    }
-
-    nav {
-      width: 100vw;
-      height: var(--nav-height);
-      border-bottom: 3px dashed darkslateblue;
-    }
-
-    main {
-      margin: 25px;
-      z-index: 5;
-    }
-
-    section {
-      border-top: 1.5px dashed darkslateblue;
-      border-bottom: 1.5px dashed darkslateblue;
-      padding-bottom: 25px;
-      padding-top: 25px;
     }
 
   </style>
@@ -70,9 +45,10 @@
         <li>energy efficiency, making sure the animations can be cancelled and resumed at will, controlled by page blur.</li>
         <li>custom element best practices, it should be able to control visual aspects of the visualization using nothing but cascading style sheets.</li>
         <li>algorithmic complexity, the current implementation uses 0-level multilevel dynamics (ie... single level dynamis) because the two-level-dynamics code is broken. Once ready, it should display on the order of thousands of vertices instead of hundreds. </li>
-        <li>api consistency, my primary audience, even though the goal of this library is to illuminate everyone's world, its primary audience is a developer familiar with html, javascript and css. </li>
+        <li>api consistency, trying to get the library adopted, I aim to write a consistent API. Similar functionality should be called in a similar manner. </li>
       </p>
 
+      <p><a href="https://github.com/stauffenbits/fourd/wiki">FourD Wiki</a> Here you can learn more about the vision and scope of this project.</p>
       <p><a href="doc/Building.html">Learn how</a> to fetch, build and contribute back to the code.</p>
     </section>
 
@@ -88,9 +64,12 @@
       <br>
       
       <jmm-fourd id="fourd"></jmm-fourd>
+      <br>
+
       <div id="chart"></div>
       <br>
-      <br>Edit me!
+      
+      <br>If you see a box below, you can edit the css, right here on the webpage.</br>
       <style contenteditable id="customStyle">
 #fourd {
   margin: 25px;

@@ -57,7 +57,7 @@ class FourD extends HTMLElement {
 
     this.settings = new Settings();
     
-    this.graph = new Graph(0, new Settings());
+    this.graph = new Graph(0, this.settings);
 
     this.attachShadow({mode: 'open'})
     var template = document.createElement('template');
