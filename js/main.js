@@ -82,22 +82,6 @@ var LayoutPlotter = class LayoutPlotter {
     };
   }
 
-  /** 
-   * Preconditions:
-   * - .vertexToRow has been set
-   * 
-   * Parameters:
-   * - xField: The name of the streaming object's field containing the plot's x-value
-   * - yField: The name of the streaming object's field containing the plot's y-value
-   * - categoryField: Name of the streaming object's field containing the plot's category (color) value
-   * 
-   * PostConditions: 
-   * - 
-   * 
-   * Return Value:
-   * - promise resolving to embed return value
-   * 
-  */
   plot(yField){
     this.yField = yField;
 
@@ -209,11 +193,11 @@ $('#addPyramid').click(function(){
   fourd.add_edge(v3, v4); 
   fourd.follow(v1);
 
-  var lp = new LayoutPlotter('#fourd', '#chart');
-  lp.plot('delta').over('iteration').colorBy('id')
-    .stream(vertex => vertex.previous - math.subset(vertex.position, math.index(0)));
+  new LayoutPlotter('#fourd', '#chart')
+    .plot('deltaNorm').over('iteration')
+    .colorBy('id')
+    .stream(vertex => vertex.previous - math.norm(vertex.position, 3));
 
-  window.lp = lp;
 });
 
 /*
@@ -253,9 +237,7 @@ $('#addPyramid').click(function(){
   fourd.add_edge(v3, v4); 
   fourd.follow(v1);
 
-  var ve = embed('#chart', deltaSpec).then((res) => {    
-    
-
+  var ve = embed('#chart', deltaSpec).then((res) => {
     var recorder = () => {
       var delta;
 

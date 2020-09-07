@@ -378,8 +378,8 @@ class FourD extends HTMLElement {
   resume(){
     this.styleObserver.observe(this, {
       attributes: true,
-      childList: false
-    })
+      attributeFilter: ['class', 'style']
+    });
     this.animate();
   }
 

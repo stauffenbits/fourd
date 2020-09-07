@@ -13,6 +13,16 @@ var Settings = class Settings{
     this._theta = 0.20;
   }
 
+  fromJSON(obj){
+    var settings = this.settings;
+
+    for(var setting of Object.keys(obj)){
+      this[setting] = obj[setting];
+    }
+
+    return true;
+  }
+
   get settings(){
     return [
       'attraction',
@@ -92,12 +102,24 @@ var Settings = class Settings{
   toJSON(){
     var object = {};
     var settings = this.settings;
+
     for(var setting of settings){
       object[setting] = Reflect.get(this, setting);
     }
 
     return object;
   }
+
+  mop(transformer){ 
+    var settings = this.settings;
+    var newObj = {};
+
+    for(var setting of settings){
+      newObj[setting] = transformer(this[setting]);
+    }
+
+    return newObj; 
+  };
 }
 
 export default Settings;
