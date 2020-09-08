@@ -56,7 +56,6 @@ class FourD extends HTMLElement {
     super();
 
     this.settings = new Settings();
-    
     this.graph = new Graph(0, this.settings);
 
     this.attachShadow({mode: 'open'})
@@ -102,22 +101,32 @@ class FourD extends HTMLElement {
 
     this.style = this.shadowRoot.querySelector('style');
 
-    this._render_hook = () => {};
+    this._render_hook = [];
   }
 
   set render_hook(fn){
-    this._render_hook = fn;
+    this._render_hook.push(fn);
   }
 
   get render_hook(){
     return this._render_hook;
   }
 
+  convertColor(colorString){
+    this.appendChild(this.converter)
+    this.converter.style.backgroundColor = colorString;
+    var style = getComputedStyle(this.converter);
+    var color = style.getPropertyValue('backgroundColor');
+    this.removeChild(this.converter);
+    return color;
+  }
 
 
-  add_vertex(options={size: 1, shape: 'cube', texture: undefined, color: 'black', label: undefined, wireframe: false}){
-    var vertexColor = getComputedStyle(this).getPropertyValue('--vertex-color');
-    vertexColor = new THREE.Color(vertexColor);
+  add_vertex(options={size: 1, shape: 'cube', texture: undefined, color: undefined, label: undefined, wireframe: false}){
+    if(options.color === undefined){
+      var vertexColor = getComputedStyle(this).getPropertyValue('--vertex-color');
+      options.color = new THREE.Color(vertexColor);
+    }
 
     options = Object.assign({size: 1, shape: 'cube', texture: undefined, color: vertexColor, label: undefined, wireframe: false}, options);
 
@@ -158,7 +167,19 @@ class FourD extends HTMLElement {
   }
 
   remove_vertex(id){
+    var vertex = this.V.get(id);
+    var object = this.three.V.get(id);
 
+    var edges = [...vertex.edges];
+    for(var edge of edges){
+      this.graph.remove_edge(id);
+    }
+
+    this.three.scene.remove(object);
+
+    object.geometry.dispose();
+    object.material.dispose();
+    object.dispose();
   }
 
   add_edge(vid1, vid2, options={arrow: false, dashed: false, color: 0x000000, strength: 1.0, width: 1}){
@@ -225,6 +246,7 @@ class FourD extends HTMLElement {
   }
 
   remove_edge(id){
+
   }
 
   convertPos(mathPos){
@@ -346,8 +368,7 @@ class FourD extends HTMLElement {
       }
     }
 
-    this.render_hook(layout);
-
+    this.render_hook.push(layout);
     this.three.renderer.render(this.three.scene, this.three.camera);
   }
 
@@ -368,36 +389,29 @@ class FourD extends HTMLElement {
   }
 
   pause(){
-    this.styleObserver.disconnect();
-
     if(this.afr){
       window.cancelAnimationFrame(this.afr);
     }
   }
 
   resume(){
-    this.styleObserver.observe(this, {
-      attributes: true,
-      attributeFilter: ['class', 'style']
-    });
     this.animate();
   }
 
   // Fires when an instance was removed from the document
   disconnectedCallback() {
     this.pause();
-    this.styleObserver.disconnect();
 
     this.three.camera.dispose();
     this.three.scene.dispose();
     this.three.renderer.dispose();
   }
 
-  applyStyle(attrName='style', old, about){
+  applyStyle(attrName, old=null, about=null){
     switch(attrName){
       case 'style':
         try{
-          var style = getComputedStyle(this);
+          var style = getComputedStyle(this)
 
           if((this.style.width !== style.width) 
             || (this.style.height !== style.height)){
@@ -409,9 +423,9 @@ class FourD extends HTMLElement {
             this.three.renderer.setClearColor(style.backgroundColor);
           }
 
-          if(this.style.getPropertyValue('--vertex-color') !== style.getPropertyValue('--vertex-color')){
+          if(style.getPropertyValue('--vertex-color') !== this.style.getPropertyValue('--vertex-color')){
             var vertexColor = style.getPropertyValue('--vertex-color');
-            vertexColor = vertexColor;
+            vertexColor = this.convertColor(vertexColor);
             
             for(var cube of Object.keys(this.three.V).map(vid => this.three.V.get(vid))){
               cube.material.color.set(new THREE.Color(vertexColor));
@@ -421,7 +435,6 @@ class FourD extends HTMLElement {
             this.style.setProperty('--vertex-color', vertexColor);
           }
 
-          this.style = style;
           return false;
         }catch(e){
           console.error(`Error, probably parsing style: ${e}`);
@@ -432,12 +445,14 @@ class FourD extends HTMLElement {
       case 'class':
         try{
           var style = getComputedStyle(this);
-          this.applyStyle();
+          this.applyStyle('style');
         }catch(e){
           console.error(`Error, probably parsing style: ${e}`)
         }
         break;
     }
+
+    return false;
   }
 
   // Fires when an element is moved to a new document

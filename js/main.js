@@ -5,12 +5,13 @@ import regeneratorRuntime from "regenerator-runtime";
 
 import { create, all } from 'mathjs';
 var math = create(all, {})
+window.math = math;
 
 window.fourd = document.querySelector('#fourd');
-$('#customStyle').on('keyup', function(){
-  fourd.applyStyle();
-})
 
+window.applyStyle = function(){
+  fourd.applyStyle('style')
+}
 
 var LayoutPlotter = class LayoutPlotter {
   /** 
@@ -121,7 +122,7 @@ var LayoutPlotter = class LayoutPlotter {
     return this._vertexToRow;
   }
 
-  makeRecorder(collect){
+  makeVertexRecorder(collect){
     return (layout) => {
       var table = [];
       this.counter++;
@@ -132,7 +133,7 @@ var LayoutPlotter = class LayoutPlotter {
 
         var record = {};
         record[this.xField] = this.counter;
-        record[this.yField] = previous - collect(vertex);
+        record[this.yField] = previous - collect(vertex, layout);
         record[this.categoryField] = vertex[this.categoryField];
 
         vertex.previous = previous;
@@ -143,16 +144,47 @@ var LayoutPlotter = class LayoutPlotter {
       return table;
     };
   }
+ 
+  makeEdgeRecorder(collect){
+    return (layout) => {
+      var table = [];
+      this.counter++;
+
+      for(var i=0; i<layout.E.length; i++){
+        var edge = this.fourd.E.get(layout.E[i].id);
+        var previous = edge.previous === undefined ? 0.0 : edge.previous;
+
+        var record = {};
+        record[this.xField] = this.counter;
+        record[this.yField] = previous - collect(edge, layout);
+        record[this.categoryField] = edge[this.categoryField];
+
+        edge.previous = previous;
+        table.push(record);
+      }
+
+      return table;
+    }
+  }
 
   makeRemovable(){
     return t => t[this.xField] < this.minX;
   }
 
-  stream(collect){
+  stream(objectType="vertices", collect){
     // 1
     this.drawRange = 100;
     this.counter = 0;
-    var record = this.makeRecorder(collect);
+    var record;
+
+    switch(objectType){
+      case "vertices":
+        record = this.makeVertexRecorder(collect);
+        break;
+      case "edges":
+        record = this.makeEdgeRecorder(collect);
+        break;
+    }
     var removable = this.makeRemovable();
     
     this.view.then(view => {
@@ -178,6 +210,7 @@ var LayoutPlotter = class LayoutPlotter {
 }
 LayoutPlotter.nextId = 0;
 
+window.LayoutPlotter = LayoutPlotter;
 
 $('#addPyramid').click(function(){
   // a tetrahedron
@@ -193,91 +226,16 @@ $('#addPyramid').click(function(){
   fourd.add_edge(v3, v4); 
   fourd.follow(v1);
 
+
+  /*
   new LayoutPlotter('#fourd', '#chart')
     .plot('deltaNorm').over('iteration')
     .colorBy('id')
     .stream(vertex => vertex.previous - math.norm(vertex.position, 3));
+    */
 
+  new LayoutPlotter('#fourd', '#chart')
+    .plot('distance').over('iteration')
+    .colorBy('id')
+    .stream('edges', (edge, layout) => math.distance(edge.source.position, edge.target.position))
 });
-
-/*
-var deltaSpec = {
-  $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
-  data: {name: 'table'},
-  width: 450,
-  mark: 'point',
-  encoding: {
-    x: {
-      field: 'iteration', 
-      type: 'quantitative',
-      scale: {zero: false},
-      labels: true
-    },
-    y: {
-      field: 'delta', 
-      type: 'quantitative', 
-      axis: {bandPosition: 0.5},
-      labels: true
-    },
-    color: {field: 'id', type: 'nominal'}
-  },
-};
-
-$('#addPyramid').click(function(){
-  // a tetrahedron
-  var v1 = fourd.add_vertex(), 
-    v2 = fourd.add_vertex(), 
-    v3 = fourd.add_vertex(), 
-    v4 = fourd.add_vertex(); 
-  fourd.add_edge(v1, v2); 
-  fourd.add_edge(v2, v3); 
-  fourd.add_edge(v1, v3); 
-  fourd.add_edge(v1, v4); 
-  fourd.add_edge(v2, v4); 
-  fourd.add_edge(v3, v4); 
-  fourd.follow(v1);
-
-  var ve = embed('#chart', deltaSpec).then((res) => {
-    var recorder = () => {
-      var delta;
-
-      return (layout) => {
-        var table = [];
-        counter++;
-
-        for(var i=0; i<layout.V.length; i++){
-          var vertex = fourd.V.get(layout.V[i].id);
-          vertex.previous = vertex.previous === undefined ? 0.0 : vertex.previous;
-
-          delta = vertex.previous - math.subset(vertex.position, math.index(0));
-          vertex.previous = vertex.position._data[0];
-    
-          var row = {
-            'iteration': counter,
-            'delta': parseFloat(delta.toFixed(8)),
-            'id': vertex.id,
-          }
-
-          table.push(row)
-        }
-
-        return table;
-      };
-    };
-
-    var remover = function (t){
-      return t.iteration < minimumX;
-    }
-
-    var record = recorder();
-    var minimumX = -100;
-    var counter = 0;
-    fourd.render_hook = (layout) => {
-      minimumX++;
-      var changeSet = res.view.changeset().insert(record(layout)).remove(remover);
-      res.view.change('table', changeSet).run();
-    };
-  })
-})
-
-*/

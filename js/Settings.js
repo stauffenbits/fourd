@@ -15,7 +15,7 @@ var Settings = class Settings{
 
   fromJSON(obj){
     var settings = this.settings;
-
+    
     for(var setting of Object.keys(obj)){
       this[setting] = obj[setting];
     }
@@ -40,7 +40,7 @@ var Settings = class Settings{
   }
 
   get attraction(){
-    return this._attraction._data[0]
+    return this._attraction._data[0];
   }
 
   set repulsion(val){
@@ -48,7 +48,7 @@ var Settings = class Settings{
   }
 
   get repulsion(){
-    return this._repulsion._data[0]
+    return this._repulsion._data[0];
   }
 
   set epsilon(val){
@@ -56,7 +56,7 @@ var Settings = class Settings{
   }
 
   get epsilon(){
-    return this._epsilon._data[0]
+    return this._epsilon._data[0];
   }
 
   set inner_distance(val){
@@ -64,19 +64,19 @@ var Settings = class Settings{
   }
 
   get inner_distance(){
-    return this._inner_distance._data[0]
+    return this._inner_distance._data[0];
   }
 
   set friction(val){
-    this._friction._data = Array(3).fill(val)
+    this._friction._data = Array(3).fill(val);
   }
 
   get friction(){
-    return this._friction._data[0]
+    return this._friction._data[0];
   }
 
   set gravity(val){
-    this._gravity._data = Array(3).fill(val)
+    this._gravity._data = Array(3).fill(val);
   }
 
   get gravity(){
@@ -119,7 +119,7 @@ var Settings = class Settings{
     }
 
     return newObj; 
-  };
+  }
 }
 
 export default Settings;

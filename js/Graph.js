@@ -35,7 +35,6 @@ var Graph = class Graph {
 
     if(this.dm !== null){
       this.dm.add_vertex(vertex);
-      // this.dm_process_queue()
     }
 
     return vertex.id;
@@ -179,6 +178,8 @@ var Graph = class Graph {
     this.dm.coarser.layout();
     this.two_level_dynamics();
 
+    
+
     return this.toJSON();
   }
 
@@ -240,12 +241,12 @@ var Graph = class Graph {
       v.acceleration = math.subtract(v.acceleration, friction);
 
       v.velocity = math.add(
-        v.velocity,
-        v.acceleration
+        v.acceleration,
+        v.velocity
       );
       v.position = math.add(
-        v.position,
-        v.velocity
+        v.velocity,
+        v.position
       );
     }
   }

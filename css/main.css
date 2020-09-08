@@ -271,3 +271,6 @@ body style {
   border: 1px dashed red;
 }
 
+#chart {
+  margin: 20px;
+}
