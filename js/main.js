@@ -2,16 +2,13 @@ import "./fourd.js"
 import $ from 'jquery';
 import embed from 'vega-embed';
 import regeneratorRuntime from "regenerator-runtime";
+import {Color} from 'three';
 
 import { create, all } from 'mathjs';
 var math = create(all, {})
 window.math = math;
 
 window.fourd = document.querySelector('#fourd');
-
-window.applyStyle = function(){
-  fourd.applyStyle('style')
-}
 
 var LayoutPlotter = class LayoutPlotter {
   /** 
@@ -189,13 +186,13 @@ var LayoutPlotter = class LayoutPlotter {
     
     this.view.then(view => {
       // 3
-      this.fourd.render_hook = (layout) => {
+      this.fourd.render_hook.push((layout) => {
         this.minX++;
         var changeSet = view.changeset()
           .insert(record(layout))
           .remove(removable);
         view.change(this._id, changeSet).run();
-      }
+      })
     })
 
     // 2
@@ -226,16 +223,16 @@ $('#addPyramid').click(function(){
   fourd.add_edge(v3, v4); 
   fourd.follow(v1);
 
-
-  /*
   new LayoutPlotter('#fourd', '#chart')
     .plot('deltaNorm').over('iteration')
     .colorBy('id')
-    .stream(vertex => vertex.previous - math.norm(vertex.position, 3));
-    */
+    .stream('vertices', vertex => vertex.previous - math.norm(vertex.position, 3));
 
+
+  /*
   new LayoutPlotter('#fourd', '#chart')
     .plot('distance').over('iteration')
     .colorBy('id')
     .stream('edges', (edge, layout) => math.distance(edge.source.position, edge.target.position))
+    */
 });

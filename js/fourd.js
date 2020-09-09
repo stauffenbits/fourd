@@ -24,7 +24,6 @@ CSS.registerProperty({
 });
 
 function rgbToHex(rgb) {
-
   try{
     // Choose correct separator
     rgb = rgb.substr(4, rgb.length-5)
@@ -53,7 +52,13 @@ function rgbToHex(rgb) {
 class FourD extends HTMLElement {
   // Fires when an instance of the element is created or updated
   constructor() {
-    super();
+    super(...arguments);
+
+    this.defaults = {
+      vertexColor: 'black',
+      edgeColor: 'green',
+      backgroundColor: 'lightblue'
+    }
 
     this.settings = new Settings();
     this.graph = new Graph(0, this.settings);
@@ -62,35 +67,26 @@ class FourD extends HTMLElement {
     var template = document.createElement('template');
     template.innerHTML = `
     <style>
+    :root {
+      --vertex-color: ${this.defaults.vertexColor}
+    }
+
     :host {
       display: inline-block;
       border: 0;
-      background-color: lightgreen;
-      --vertex-color: orangered;
-      --edge-color: darkblue;
+      background-color: ${this.defaults.backgroundColor};
+      --vertex-color: ${this.defaults.vertexColor};
+      --edge-color: ${this.defaults.edgeColor};
     }
 
     :host>canvas {
       width: 100%;
       height: 100%;
     }
-
-    :host>#colorConverter {
-      z-index: -1;
-      width: 0;
-      height: 0;
-      color: var(--vertex-color);
-      background-color: var(--edge-color);
-    }
     </style>
     `
     this.shadowRoot.appendChild(template.content.cloneNode(true))
     this.afr = false;
-
-    this.styleObserver = new MutationObserver(this.applyStyle.bind(this, 'style'));
-    this.converter = document.createElement('div');
-    this.converter.id = 'colorConverter';
-    this.shadowRoot.appendChild(this.converter);
 
     this.three = {};
     this.three.V = new Map();
@@ -99,7 +95,9 @@ class FourD extends HTMLElement {
     this.V = new Map([]);
     this.E = new Map([]);
 
-    this.style = this.shadowRoot.querySelector('style');
+    this.styleObserver = new MutationObserver(this.applyStyle.bind(this, 'style'));
+
+    // this.style = this.shadowRoot.querySelector('style');
 
     this._render_hook = [];
   }
@@ -112,23 +110,12 @@ class FourD extends HTMLElement {
     return this._render_hook;
   }
 
-  convertColor(colorString){
-    this.appendChild(this.converter)
-    this.converter.style.backgroundColor = colorString;
-    var style = getComputedStyle(this.converter);
-    var color = style.getPropertyValue('backgroundColor');
-    this.removeChild(this.converter);
-    return color;
-  }
-
-
   add_vertex(options={size: 1, shape: 'cube', texture: undefined, color: undefined, label: undefined, wireframe: false}){
     if(options.color === undefined){
       var vertexColor = getComputedStyle(this).getPropertyValue('--vertex-color');
+      vertexColor = vertexColor === undefined ? this.defaults.vertexColor : vertexColor;
       options.color = new THREE.Color(vertexColor);
     }
-
-    options = Object.assign({size: 1, shape: 'cube', texture: undefined, color: vertexColor, label: undefined, wireframe: false}, options);
 
     var vertex = new Vertex(this.graph);
 
@@ -172,14 +159,17 @@ class FourD extends HTMLElement {
 
     var edges = [...vertex.edges];
     for(var edge of edges){
-      this.graph.remove_edge(id);
+      this.graph.remove_edge(edge.id);
     }
+
+    this.graph.remove_vertex(id)
+    this.three.V.delete(id);
+    this.V.delete(id);
 
     this.three.scene.remove(object);
 
     object.geometry.dispose();
     object.material.dispose();
-    object.dispose();
   }
 
   add_edge(vid1, vid2, options={arrow: false, dashed: false, color: 0x000000, strength: 1.0, width: 1}){
@@ -246,7 +236,12 @@ class FourD extends HTMLElement {
   }
 
   remove_edge(id){
+    this.graph.remove_edge(id);
 
+    var object = this.three.E.get(id);
+    this.three.scene.remove(object);
+    object.geometry.dispose();
+    object.material.dispose();
   }
 
   convertPos(mathPos){
@@ -297,8 +292,8 @@ class FourD extends HTMLElement {
     
     // render
     var style = getComputedStyle(this);
-    var vertexColor = style.getPropertyValue('--vertex-color');
-    this.style.setProperty('--vertex-color', vertexColor);
+    this.vertexColor = style.getPropertyValue('--vertex-color');
+    this.style.setProperty('--vertex-color', this.vertexColor);
 
     this.applyStyle('style');
 
@@ -368,7 +363,7 @@ class FourD extends HTMLElement {
       }
     }
 
-    this.render_hook.push(layout);
+    this.render_hook.forEach(fn => fn(layout))
     this.three.renderer.render(this.three.scene, this.three.camera);
   }
 
@@ -408,50 +403,34 @@ class FourD extends HTMLElement {
   }
 
   applyStyle(attrName, old=null, about=null){
-    switch(attrName){
-      case 'style':
-        try{
-          var style = getComputedStyle(this)
+    if(attrName === undefined){
+      attrName = 'style'
+    }
+    console.log('style change')
 
-          if((this.style.width !== style.width) 
-            || (this.style.height !== style.height)){
-            this.onresize();
-          }
-            
-          if(this.style.backgroundColor !== style.backgroundColor){
-            this.style.backgroundColor = style.backgroundColor;
-            this.three.renderer.setClearColor(style.backgroundColor);
-          }
+    var style = getComputedStyle(this);
 
-          if(style.getPropertyValue('--vertex-color') !== this.style.getPropertyValue('--vertex-color')){
-            var vertexColor = style.getPropertyValue('--vertex-color');
-            vertexColor = this.convertColor(vertexColor);
-            
-            for(var cube of Object.keys(this.three.V).map(vid => this.three.V.get(vid))){
-              cube.material.color.set(new THREE.Color(vertexColor));
-              cube.material.needsUpdate = true;
-            }
-
-            this.style.setProperty('--vertex-color', vertexColor);
-          }
-
-          return false;
-        }catch(e){
-          console.error(`Error, probably parsing style: ${e}`);
-        }
-
-      break;
-
-      case 'class':
-        try{
-          var style = getComputedStyle(this);
-          this.applyStyle('style');
-        }catch(e){
-          console.error(`Error, probably parsing style: ${e}`)
-        }
-        break;
+    if((this.style.width !== style.width) 
+      || (this.style.height !== style.height)){
+      this.onresize();
+    }
+      
+    if(this.style.backgroundColor !== style.backgroundColor){
+      this.style.backgroundColor = style.backgroundColor;
+      this.three.renderer.setClearColor(style.backgroundColor);
     }
 
+    if(this.vertexColor !== style.getPropertyValue('--vertex-color')){
+      this.vertexColor = style.getPropertyValue('--vertex-color');
+      this.vertexColor = this.vertexColor === undefined ? this.defaults.vertexColor : this.vertexColor;
+      
+      for(var cube of [...this.three.V.values()]){
+        cube.material.color.set(new THREE.Color(this.vertexColor));
+        cube.material.needsUpdate = true;
+      }
+
+      this.style.setProperty('--vertex-color', this.vertexColor);
+    }
     return false;
   }
 

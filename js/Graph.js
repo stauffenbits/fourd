@@ -78,7 +78,7 @@ var Graph = class Graph {
       return false;
     }
 
-    if(this.dm === null){
+    if(this.dm !== null){
       this.dm.remove_edge(e);
     }
 
