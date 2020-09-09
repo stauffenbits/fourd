@@ -228,7 +228,10 @@ $('#addPyramid').click(function(){
     .colorBy('id')
     .stream('vertices', vertex => vertex.previous - math.norm(vertex.position, 3));
 
-
+  new LayoutPlotter('#fourd', '#chart2')
+    .plot('distance').over('iteration')
+    .colorBy('id')
+    .stream('edges', (edge, layout) => math.distance(edge.source.position, edge.target.position))
   /*
   new LayoutPlotter('#fourd', '#chart')
     .plot('distance').over('iteration')
