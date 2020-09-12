@@ -46,7 +46,7 @@ var Vertex = class Vertex {
   }
 
   static pairwise_repulsion(onePos, twoPos, settings){
-    var diff = math.subtract(onePos, twoPos);
+    var diff = math.distance(onePos, twoPos);
 
     if(math.smaller(diff, settings.epsilon)){
       return math.random([3], 0.0, 0.01)

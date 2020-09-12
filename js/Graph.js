@@ -254,6 +254,7 @@ var Graph = class Graph {
   two_level_dynamics(){
     var a__ = this.alpha__();
     var b__ = this.beta__();
+    var theta = this.settings.theta;
 
     var v, y;
     var sum = math.zeros(3);
@@ -263,27 +264,19 @@ var Graph = class Graph {
 
       v.proj_accel = math.zeros(3)
       v.acceleration = math.zeros(3);
-
       // should this be make_...?
       y = this.dm.get_corresponding_vertex(v);
       if(!y){
         continue;
       }
 
-      sum = math.add(
-        b__,
-        math.multiply(y.position, a__),
-        math.multiply(
-          y.velocity,
-          math.multiply(this.alpha_, 2.0, this.settings.theta)
-        ),
-        math.multiply(
-          y.acceleration,
-          this.alpha,
-          math.multiply(
-            this.settings.theta, 
-            this.settings.theta
-          )
+      v.proj_accel = math.subtract(
+        v.displacement__,
+        math.add(
+          b__,
+          math.multiply(alpha__, v.position),
+          math.multiply(2, alpha_, theta, v.velocity),
+          math.multiply(alpha, theta, theta, v.acceleration)
         )
       )
 

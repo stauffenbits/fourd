@@ -18,7 +18,7 @@
     "githubDev":      "parcel index.html --out-dir docs/ --public-url /fourd/",
     "commit":         "git add . && git commit -m \"autocommit: $(date) @ $(hostname)\" --allow-empty",
     "publish":        "npm run commit && git push origin main",
-    "codesmith":      "npm run clean && npm run codesmithBuild && npm run codesmithDev",
+    "codesmith":      "npm run clean; npm run codesmithBuild && npm run codesmithDev",
     "codesmithBuild": "parcel build index.html --out-dir docs/ --public-url /test/",
     "codesmithDev":   "parcel index.html --out-dir docs/ --public-url /test/",
     "local":          "npm run clean && npm run localBuild && npm run localDev",
